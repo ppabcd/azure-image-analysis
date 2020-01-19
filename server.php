@@ -20,7 +20,7 @@ function response($data){
     echo json_encode($data);
     die();
 }
-// var_dump($_FILES['gambar']);
+print_r($HTTP_POST_FILES);
 // Process File upload
 if(!isset($_FILES['gambar'])){
     $data = [
@@ -32,9 +32,8 @@ if(!isset($_FILES['gambar'])){
 $name = $_FILES['gambar']['name'];
 $tmp_name = $_FILES['gambar']['tmp_name'];
 
-var_dump($_FILES);
-move_uploaded_file($tmp_name, __DIR__.'/upload/'.$name);
-$fileToUpload = $name;
+copy($tmp_name, __DIR__.'/upload/'.$name);
+$fileToUpload = __DIR__.'/upload/'.$name;
 // Create container options object.
 $createContainerOptions = new CreateContainerOptions();
 // Set public access policy. Possible values are

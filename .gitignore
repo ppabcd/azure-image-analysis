@@ -3,3 +3,4 @@
 vendor
 *.jpg
 !placeholder.jpg
+upload/*.jpg
