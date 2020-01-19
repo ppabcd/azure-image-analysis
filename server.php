@@ -33,7 +33,7 @@ $name = $_FILES['gambar']['name'];
 $tmp_name = $_FILES['gambar']['tmp_name'];
 
 var_dump($_FILES);
-copy($tmp_name, $name);
+move_uploaded_file($tmp_name, __DIR__.'/upload/'.$name);
 $fileToUpload = $name;
 // Create container options object.
 $createContainerOptions = new CreateContainerOptions();
