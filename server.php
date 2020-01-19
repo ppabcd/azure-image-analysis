@@ -16,24 +16,10 @@ $connectionString = "DefaultEndpointsProtocol=https;AccountName=".$_ENV['ACCOUNT
 // Create blob client.
 $blobClient = BlobRestProxy::createBlobService($connectionString);
 
-function response($data){
-    echo json_encode($data);
-    die();
+$fileToUpload = "upload/".$_POST['filename'];
+if(!file_exists($fileToUpload)){
+    die(json_encode(['message'=>'invalid file']));
 }
-print_r($HTTP_POST_FILES);
-// Process File upload
-if(!isset($_FILES['gambar'])){
-    $data = [
-        "message" => 'Please select a file before upload a file',
-        "status" => 'error',
-    ];
-    response($data);
-}
-$name = $_FILES['gambar']['name'];
-$tmp_name = $_FILES['gambar']['tmp_name'];
-
-copy($tmp_name, __DIR__.'/upload/'.$name);
-$fileToUpload = __DIR__.'/upload/'.$name;
 // Create container options object.
 $createContainerOptions = new CreateContainerOptions();
 // Set public access policy. Possible values are
@@ -56,14 +42,13 @@ $createContainerOptions->addMetaData("key1", "value1");
 $createContainerOptions->addMetaData("key2", "value2");
 $containerName = "blockblobs";
 try {
-    // Getting local file so that we can upload it to Azure
-    $myfile = fopen($fileToUpload, "w") or die("Unable to open file!");
-    fclose($myfile);
-    
-    $content = fopen($fileToUpload, "r");
     //Upload blob
-    $blobClient->createBlockBlob($containerName, $fileToUpload, $content);
-
+    $handle = @fopen($fileToUpload, 'r');
+    $blobClient->createBlockBlob($containerName, $fileToUpload, $handle);
+    @fclose($handle);
+    unlink($fileToUpload);
+    echo json_encode(['message'=>'success', 'url'=>'https://'.$_ENV['ACCOUNT_NAME'].'.blob.core.windows.net/blockblobs/'.$fileToUpload]);
+    return;
 }
 catch(ServiceException $e){
     // Handle exception based on error codes and messages.
@@ -81,3 +66,4 @@ catch(InvalidArgumentTypeException $e){
     $error_message = $e->getMessage();
     echo $code.": ".$error_message."<br />";
 }
+echo json_encode(['message'=>'failed']);
